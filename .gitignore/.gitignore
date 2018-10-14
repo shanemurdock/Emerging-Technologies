@@ -1,0 +1,166 @@
+/*
+ * Assignment 1
+ *
+ * Student Name: Shane
+ *
+ */
+import java.util.*;
+public class Assignment1{
+    public static void main(String[] args) {
+    	// I didnt comment any code out as this wont run either way so it needs to be copied and pasted 
+       //==================================================
+       //Test code for Question 1
+    	// Create array and set its size
+		int list[] = new int[20];
+
+
+		//assume occurrence of zero  equally likely for all numbers generated
+		//Create threads to throw dice
+		Die d1 = new Die(list,0,4);
+		Die d2 = new Die(list,5,9);
+		Die d3 = new Die(list,10,14);
+		Die d4 = new Die(list,15,19);
+		//Start each thread 
+		d1.start();
+		d2.start();
+		d3.start();
+		d4.start();
+		try
+		{
+			// delay each thread till the one before is finished
+			d1.join();
+			d2.join();
+			d3.join();
+			d4.join();
+			
+		}
+		catch(InterruptedException e){}
+		// Create ints for a counting 
+		int count1 = 0;
+		int count2 = 0;
+		int count3 = 0;
+		int count4 = 0;
+		int count5 = 0;
+		int count6 = 0;
+	// Populate and print array
+		for(int i = 0; i < list.length; i++) {
+			System.out.print(list[i]+", ");
+			
+			if(list[i] == 1)
+				count1++;
+			else if(list[i] == 2)
+				count2++;
+			else if(list[i] == 3)
+				count3++;
+			else if(list[i] == 4)
+				count4++;
+			else if(list[i] == 5)
+				count5++;
+			else if(list[i] == 6)
+				count6++;
+
+		}
+			
+		// print array and frequency
+		System.out.println();
+		System.out.println("Freq of 1: " + count1);
+		System.out.println("Freq of 2: " + count2);
+		System.out.println("Freq of 3: " + count3);
+		System.out.println("Freq of 4: " + count4);
+		System.out.println("Freq of 5: " + count5);
+		System.out.println("Freq of 6: " + count6);	
+
+
+       //==================================================
+       //Test code for Question2
+		int n = 10000000;
+
+		int data[] = new int[n];
+		//assume occurrence of zero equally likely for all numbers generated
+		for(int j = 0; j < n; j++)
+		data[j] = (int)(Math.random()*n);
+		int index = 0;
+		// create threads to search array and what partition
+		Zero t1 = new Zero(data,0,2500000);
+		Zero t2 = new Zero(data,2500000,5000000);
+		Zero t3 = new Zero(data,5000000,7500000);
+		Zero t4 = new Zero(data,7500000,10000000);
+		//start first thread
+		t1.start();
+		try
+		{
+			// have each thread wait till the first is finished before they start
+			t1.join();
+			t2.join();
+			t3.join();
+			t4.join();
+		} catch(InterruptedException e){}
+		// get results of zero being foudn
+		boolean found = t1.getResult() || t2.getResult()|| t3.getResult()|| t4.getResult();
+		// print results
+		System.out.println("Found = " + found);
+		
+
+
+    }
+}
+
+//=========================================================
+// Code for thread classes here
+//Question 1 
+
+class Die extends Thread
+{
+	private int data[];
+	private int lowerBound;
+	private int upperBound; 
+	public Die(int list[], int l, int u)
+	{
+		lowerBound = l;
+		upperBound = u;
+		data = list;
+	}
+	public void run()
+	{
+		//create random number gen to throw dice
+		Random dice = new Random();
+		for(int i = lowerBound; i <= upperBound; i++){
+			data [i] = dice.nextInt(6)+1;
+		}
+		
+	}
+	public int getResult(int result)
+	{
+		return data[result];
+	}
+	
+}
+//Question 2
+class Zero extends Thread 
+{
+	private int f[];
+	private int lb, ub;
+	private int x;
+	private boolean found;
+	Zero(int f1[], int a, int b) 
+	{
+		f = f1;
+		lb = a;
+		ub = b;
+	
+	}
+	public void run() 
+	{
+		int k = lb;
+		found = false;
+		while (k < ub && !found)
+		{
+			if(f[k] == x) found = true;
+			k++; 
+		}
+	}
+	boolean getResult() 
+	{
+		return found;
+	}
+}
